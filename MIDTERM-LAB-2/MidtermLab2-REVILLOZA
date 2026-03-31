@@ -1,1 +1,321 @@
 
+import tkinter as tk
+from tkinter import ttk, messagebox
+import networkx as nx
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import time
+
+# Configure matplotlib style
+try:
+    plt.style.use('seaborn-v0_8-darkgrid')
+except:
+    plt.style.use('default')
+
+# -----------------------------
+# GRAPH DATA
+# -----------------------------
+edges = [
+    ("IMUS", "BACOOR", 10, 15, 1.2),
+    ("BACOOR", "DASMA", 12, 25, 1.5),
+    ("DASMA", "KAWIT", 12, 25, 1.5),
+    ("KAWIT", "INDANG", 12, 25, 1.2),
+    ("INDANG", "SILANG", 14, 25, 1.5),
+    ("SILANG", "GENTRI", 10, 25, 1.3),
+    ("GENTRI", "NOVELETA", 10, 25, 1.5),
+    ("NOVELETA", "IMUS", 10, 15, 1.2),
+    ("BACOOR", "SILANG", 10, 25, 1.3),
+    ("DASMA", "SILANG", 12, 25, 1.5),
+    ("SILANG", "BACOOR", 10, 25, 1.3),
+    ("NOVELETA", "BACOOR", 10, 15, 1.2),
+    ("SILANG", "KAWIT", 14, 25, 1.2),
+    ("IMUS", "NOVELETA", 10, 15, 1.2)
+]
+
+G = nx.DiGraph()
+
+for u, v, d, t, f in edges:
+    G.add_edge(u, v, distance=d, time=t, fuel=f)
+
+# Color scheme
+COLORS = {
+    'primary': '#667eea',
+    'secondary': '#764ba2',
+    'success': '#48bb78',
+    'danger': '#f56565',
+    'warning': '#ed8936',
+    'info': '#4299e1',
+    'light': '#f7fafc',
+    'dark': '#2d3748'
+}
+
+# -----------------------------
+# GUI APP
+# -----------------------------
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cavite Network Route Optimizer")
+        self.root.geometry("1200x700")
+        self.root.resizable(False, False)  # prevent automatic size changes while updating route details
+        
+        # Configure style
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Custom styling
+        style.configure('Title.TLabel', font=('Segoe UI', 18, 'bold'), foreground=COLORS['primary'])
+        style.configure('Heading.TLabel', font=('Segoe UI', 11, 'bold'), foreground=COLORS['dark'])
+        style.configure('Normal.TLabel', font=('Segoe UI', 9))
+        style.configure('Accent.TButton', font=('Segoe UI', 10, 'bold'))
+        style.configure('Result.TLabelframe', background='#edf2ff', bordercolor='#667eea', borderwidth=2, relief='ridge')
+        style.configure('Result.TLabelframe.Label', font=('Segoe UI', 9, 'bold'), foreground=COLORS['primary'])
+        style.configure('Result.TLabel', background='#edf2ff', foreground=COLORS['dark'])
+        
+        self.nodes = sorted(list(G.nodes))
+
+        # Main container
+        main_container = ttk.Frame(root)
+        main_container.pack(fill='both', expand=True, padx=15, pady=15)
+
+        # Header
+        header_frame = ttk.Frame(main_container)
+        header_frame.pack(fill='x', pady=(0, 20))
+        
+        title_label = ttk.Label(header_frame, text="🗺️  Cavite Network Route Optimizer", style='Title.TLabel')
+        title_label.pack(side='left')
+        
+        subtitle_label = ttk.Label(header_frame, text="Find the optimal route between cities", font=('Segoe UI', 9), foreground='gray')
+        subtitle_label.pack(side='left', padx=(15, 0))
+
+        # Content area with two columns
+        content_frame = ttk.Frame(main_container)
+        content_frame.pack(fill='both', expand=True)
+
+        # Left panel - Controls
+        left_panel = self._create_control_panel(content_frame)
+        left_panel.pack(side='left', fill='both', padx=(0, 10))
+
+        # Right panel - Graph
+        right_panel = ttk.Frame(content_frame, relief='sunken', borderwidth=2)
+        right_panel.pack(side='left', fill='both', expand=True)
+
+        # Graph figure
+        self.fig = plt.Figure(figsize=(6, 5.5), dpi=100, facecolor='white')
+        self.ax = self.fig.add_subplot(111)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=right_panel)
+        self.canvas.get_tk_widget().pack(fill='both', expand=True)
+
+        self.pos = nx.spring_layout(G, seed=42, k=0.5)
+        self.current_path = []
+        self.draw_graph()
+
+    def _create_control_panel(self, parent):
+        """Create the left control panel"""
+        panel = ttk.Frame(parent, relief='sunken', borderwidth=2)
+        
+        # Panel content with padding
+        content = ttk.Frame(panel)
+        content.pack(fill='both', expand=True, padx=15, pady=15)
+
+        # Section: Route Configuration
+        config_label = ttk.Label(content, text="📍 Route Configuration", style='Heading.TLabel')
+        config_label.pack(anchor='w', pady=(0, 12))
+
+        # Start Node
+        ttk.Label(content, text="Starting Point:", font=('Segoe UI', 9, 'bold')).pack(anchor='w', pady=(0, 4))
+        self.start = ttk.Combobox(content, values=self.nodes, state='readonly', width=20)
+        self.start.pack(fill='x', pady=(0, 12))
+        self.start.set(self.nodes[0] if self.nodes else "")
+
+        # End Node
+        ttk.Label(content, text="Destination:", font=('Segoe UI', 9, 'bold')).pack(anchor='w', pady=(0, 4))
+        self.end = ttk.Combobox(content, values=self.nodes, state='readonly', width=20)
+        self.end.pack(fill='x', pady=(0, 12))
+        self.end.set(self.nodes[1] if len(self.nodes) > 1 else "")
+
+        # Criteria
+        ttk.Label(content, text="Optimize For:", font=('Segoe UI', 9, 'bold')).pack(anchor='w', pady=(0, 4))
+        self.criteria = ttk.Combobox(content, values=["📏 Distance", "⏱️ Time", "⛽ Fuel"], state='readonly', width=20)
+        self.criteria.pack(fill='x', pady=(0, 16))
+        self.criteria.set("📏 Distance")
+
+        # Divider
+        ttk.Separator(content, orient='horizontal').pack(fill='x', pady=10)
+
+        # Buttons
+        btn_frame = ttk.Frame(content)
+        btn_frame.pack(fill='x', pady=(0, 12))
+
+        btn = ttk.Button(btn_frame, text="🔍 Find Route", command=self.run, style='Accent.TButton')
+        btn.pack(fill='x', pady=(0, 8))
+
+        reset_btn = ttk.Button(btn_frame, text="↻ Reset", command=self.reset)
+        reset_btn.pack(fill='x')
+
+        # Divider
+        ttk.Separator(content, orient='horizontal').pack(fill='x', pady=10)
+
+        # Results Section
+        results_label = ttk.Label(content, text="📊 Route Details", style='Heading.TLabel', foreground=COLORS['primary'])
+        results_label.pack(anchor='w', pady=(0, 12))
+
+        # Fixed result labels (always visible)
+        self.result_frame = ttk.Frame(content, style='Result.TLabelframe')
+        self.result_frame.pack(fill='x', pady=(0,8))
+
+        self.result_path_label = ttk.Label(self.result_frame, text="Path: -", font=('Segoe UI', 9, 'bold'), wraplength=260, justify='left')
+        self.result_path_label.pack(anchor='w', pady=(2, 4), fill='x')
+
+        self.result_total_distance = ttk.Label(self.result_frame, text="Total Distance: -", font=('Segoe UI', 9))
+        self.result_total_distance.pack(anchor='w', pady=(0, 2), fill='x')
+
+        self.result_total_time = ttk.Label(self.result_frame, text="Total Time: -", font=('Segoe UI', 9))
+        self.result_total_time.pack(anchor='w', pady=(0, 2), fill='x')
+
+        self.result_total_fuel = ttk.Label(self.result_frame, text="Total Fuel: -", font=('Segoe UI', 9))
+        self.result_total_fuel.pack(anchor='w', pady=(0, 2), fill='x')
+
+        self.result_optimization = ttk.Label(self.result_frame, text="Optimized for: -", font=('Segoe UI', 9))
+        self.result_optimization.pack(anchor='w', pady=(0, 2), fill='x')
+
+        self.result_segments = ttk.Label(self.result_frame, text="Segments: -", font=('Segoe UI', 9))
+        self.result_segments.pack(anchor='w', pady=(0, 2), fill='x')
+
+        self.result_note = ttk.Label(content, text="Select inputs then click 'Find Route'", font=('Segoe UI', 8), foreground='gray')
+        self.result_note.pack(anchor='w', pady=(8, 0), fill='x')
+
+        return panel
+
+    def draw_graph(self, highlight_edges=[]):
+        self.ax.clear()
+
+        # Color edges based on distance
+        colors = []
+        for u, v in G.edges():
+            d = G[u][v]["distance"]
+            if d <= 10:
+                colors.append('#48bb78')  # Green
+            elif d <= 12:
+                colors.append('#ed8936')  # Orange
+            else:
+                colors.append('#f56565')  # Red
+
+        # Draw base graph
+        nx.draw(G, self.pos, ax=self.ax,
+                with_labels=True,
+                node_color=COLORS['info'],
+                edge_color=colors,
+                width=1.5,
+                node_size=1500,
+                font_size=9,
+                font_weight='bold',
+                font_color='white',
+                arrowsize=20,
+                arrowstyle='->')
+
+        # Highlight path edges
+        if highlight_edges:
+            nx.draw_networkx_edges(
+                G, self.pos,
+                edgelist=highlight_edges,
+                edge_color=COLORS['primary'],
+                width=4,
+                alpha=0.8,
+                ax=self.ax,
+                arrowsize=25,
+                arrowstyle='->'
+            )
+
+        self.ax.set_title('Cavite Network Graph', fontsize=12, fontweight='bold', pad=15)
+        self.fig.tight_layout()
+        self.canvas.draw()
+
+    def run(self):
+        start = self.start.get()
+        end = self.end.get()
+        criteria_text = self.criteria.get()
+        
+        # Map display text to criteria
+        criteria_map = {
+            "📏 Distance": "distance",
+            "⏱️ Time": "time",
+            "⛽ Fuel": "fuel"
+        }
+        criteria = criteria_map.get(criteria_text, "distance")
+
+        if not start or not end:
+            messagebox.showwarning("Missing Input", "Please select both start and end cities.")
+            return
+
+        if start == end:
+            messagebox.showinfo("Same City", "Start and end cities must be different.")
+            return
+
+        try:
+            # Find shortest path
+            path = nx.shortest_path(G, start, end, weight=criteria)
+            self.current_path = path
+
+            # Calculate totals
+            totals = {'distance': 0, 'time': 0, 'fuel': 0}
+            for u, v in zip(path[:-1], path[1:]):
+                data = G[u][v]
+                totals['distance'] += data['distance']
+                totals['time'] += data['time']
+                totals['fuel'] += data['fuel']
+
+            # Animate path
+            edges = [(path[i], path[i+1]) for i in range(len(path)-1)]
+
+            for i in range(len(edges)):
+                self.draw_graph(edges[:i+1])
+                self.root.update()
+                time.sleep(0.4)
+
+            # Display results
+            self._display_results(path, totals, criteria)
+
+        except nx.NetworkXNoPath:
+            messagebox.showerror("No Route", f"No route found from {start} to {end}.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+    def _display_results(self, path, totals, criteria):
+        """Display route results in the results panel"""
+        # Update fixed labels
+        self.result_path_label.config(text=f"Path: {' → '.join(path)}")
+        self.result_total_distance.config(text=f"Total Distance: {totals['distance']:.1f} km")
+        self.result_total_time.config(text=f"Total Time: {totals['time']:.1f} minutes")
+        self.result_total_fuel.config(text=f"Total Fuel: {totals['fuel']:.2f} L")
+        self.result_optimization.config(text=f"Optimized for: {criteria.upper()}")
+        self.result_segments.config(text=f"Segments: {len(path) - 1}")
+        self.result_note.config(text='✅ Route displayed fully; see the graph for highlighted path.')
+
+        # No separate scrolling widget needed; fixed labels are visible by default
+        # If you want more detailed route text, it can be assigned to self.result_note
+        self.result_note.config(text='✅ Route ready. See all metrics above and path on the graph.')
+
+    def reset(self):
+        """Reset to initial state"""
+        self.start.set(self.nodes[0] if self.nodes else "")
+        self.end.set(self.nodes[1] if len(self.nodes) > 1 else "")
+        self.criteria.set("📏 Distance")
+        self.current_path = []
+
+        self.result_path_label.config(text="Path: -")
+        self.result_total_distance.config(text="Total Distance: -")
+        self.result_total_time.config(text="Total Time: -")
+        self.result_total_fuel.config(text="Total Fuel: -")
+        self.result_optimization.config(text="Optimized for: -")
+        self.result_segments.config(text="Segments: -")
+        self.result_note.config(text='Select inputs then click \'Find Route\'')
+        self.draw_graph()
+
+# =============================================
+# MAIN APPLICATION ENTRY POINT
+# =============================================
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
