@@ -16,11 +16,13 @@ A collaborative data science project featuring a World Bank International Debt S
 - IMPLEMENTED in script.js line 524-532
 - Hooked into loadWorldBankData() for automatic initialization
 
-#### TASK B: renderTable(data)
+#### TASK B: renderTable(data) ✅ COMPLETE
 - Clears and renders table rows
 - Applies 'num' CSS class for right-aligned numbers
 - Shows "No results" message when empty
 - Properly formats floating-point values
+- IMPLEMENTED in script.js line 541-577
+- Handles missing data gracefully with '-' placeholder
 
 #### TASK C: applyFilterSort()
 - Filters by country name (case-insensitive)
