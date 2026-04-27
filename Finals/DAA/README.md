@@ -24,10 +24,12 @@ A collaborative data science project featuring a World Bank International Debt S
 - IMPLEMENTED in script.js line 541-577
 - Handles missing data gracefully with '-' placeholder
 
-#### TASK C: applyFilterSort()
+#### TASK C: applyFilterSort() ✅ COMPLETE
 - Filters by country name (case-insensitive)
 - Sorts by: Country (A-Z), Value (High-Low), Year (Recent-First)
 - Updates table and row count in real-time
+- IMPLEMENTED in script.js line 578-614
+- Event listeners wired to #applyBtn and #filterInput (Enter key)
 
 #### TASK D: resetTable()
 - Clears filter and sort inputs
