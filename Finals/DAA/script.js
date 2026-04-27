@@ -7,6 +7,7 @@ let topCountriesChart = null;
 let debtTypeChart = null;
 let trendsChart = null;
 let regionalChart = null;
+let barChart = null;
 
 // STUDENT 1 CONTRIBUTION: Data Engine namespace
 window.DS = [];
@@ -290,6 +291,7 @@ function filterData() {
 function updateCharts() {
     setTimeout(() => {
         updateTopCountriesChart();
+        drawBarChart('barChart', filteredData);
         updateDebtTypeChart();
         updateTrendsChart();
         updateRegionalChart();
@@ -380,6 +382,66 @@ function updateTopCountriesChart() {
             }
         }
     });
+}
+
+function drawBarChart(canvasId, data) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    // Sort the top 10 countries by debt value
+    const sorted = [...data]
+        .filter(item => item['Country Name'] && item['Value'])
+        .sort((a, b) => b['Value'] - a['Value'])
+        .slice(0, 10);
+
+    const labels = sorted.map(item => item['Country Name']);
+    const values = sorted.map(item => typeof item['Value'] === 'string' ? parseFloat(item['Value']) : item['Value']);
+
+    if (barChart) {
+        barChart.destroy();
+    }
+
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Debt Value',
+                data: values,
+                backgroundColor: 'rgba(217,79,61,0.8)',
+                borderColor: 'rgba(217,79,61,1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    min: 0,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                y: {
+                    ticks: {
+                        autoSkip: false
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    const placeholder = document.getElementById('barPlaceholder');
+    if (placeholder) placeholder.style.display = 'none';
+    ctx.style.display = 'block';
 }
 
 // Chart 2: Debt distribution by type

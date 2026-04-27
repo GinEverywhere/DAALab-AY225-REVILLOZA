@@ -634,7 +634,7 @@
     <p class="sub">Dataset: 20 students · 9 variables · Academic Term 2025</p>
   </div>
   <div class="masthead-right">
-    <div class="branch-pill"><span class="dot"></span>branch: <strong id="branchName">main</strong></div>
+    <div class="branch-pill"><span class="dot"></span>branch: <strong id="branchName">feature/viz-analysis</strong></div>
     <div class="branch-pill" style="color:#8a93b0;">2-student collab mode</div>
   </div>
 </header>
@@ -1104,9 +1104,9 @@ window.CHARTS = {};
  */
 function onDataReady() {
   // Student 2: call your initializers here
-  // initCharts();       // ← Student 2 charts
-  // renderAnalysis(window.DS); // ← Student 2 stats
-  // renderInsights(window.DS); // ← Student 2 narrative
+  initCharts();       // ← Student 2 charts
+  renderAnalysis(window.DS); // ← Student 2 stats
+  renderInsights(window.DS); // ← Student 2 narrative
 
   console.log("✅ onDataReady() fired — window.DS:", window.DS.length, "records");
 }
@@ -1162,8 +1162,11 @@ function median(arr) {
  *  5. Signal readiness:                 onDataReady();
  */
 function loadDataset() {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 1: loadDataset() is not implemented yet.");
+  window.DS = [...RAW_DATA];
+  renderTable(window.DS);
+  renderSummaryCards(window.DS);
+  updateRowCount(window.DS.length);
+  onDataReady();
 }
 
 /**
@@ -1186,11 +1189,36 @@ function loadDataset() {
  *   <tr><td colspan="10" style="text-align:center;padding:30px;">No results found.</td></tr>
  */
 function renderTable(data) {
-  // ↓ TODO: Implement this function ↓
-  // Hint: const tbody = document.getElementById('tableBody');
-  // Hint: tbody.innerHTML = '';
-  // Hint: data.forEach((student, i) => { ... tbody.appendChild(tr); });
-  console.warn("⚠ Student 1: renderTable() is not implemented yet.");
+  const tableBody = document.getElementById('tableBody');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = '';
+  
+  if (data.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;">No results found.</td></tr>';
+    return;
+  }
+  
+  data.forEach((student, i) => {
+    const row = document.createElement('tr');
+    const jobText = student.job ? 'Yes' : 'No';
+    const gradeClass = `g${student.grade}`;
+    
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${student.name}</td>
+      <td class="num">${student.studyHours}</td>
+      <td class="num">${student.attendance}</td>
+      <td class="num">${student.midterm}</td>
+      <td class="num">${student.score}</td>
+      <td class="num">${student.assignments}</td>
+      <td class="num">${student.sleep}</td>
+      <td>${jobText}</td>
+      <td class="${gradeClass}">${student.grade}</td>
+    `;
+    
+    tableBody.appendChild(row);
+  });
 }
 
 /**
@@ -1213,8 +1241,34 @@ function renderTable(data) {
  * After filtering & sorting: call renderTable(result) and update #rowCount.
  */
 function applyFilterSort() {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 1: applyFilterSort() is not implemented yet.");
+  const filterInput = document.getElementById('filterInput')?.value.toLowerCase() || '';
+  const sortSelect = document.getElementById('sortSelect')?.value || 'none';
+  
+  // Filter
+  let filtered = window.DS.filter(record =>
+    record.name.toLowerCase().includes(filterInput)
+  );
+  
+  // Sort
+  if (sortSelect !== 'none') {
+    filtered.sort((a, b) => {
+      if (sortSelect === 'name') {
+        return a.name.localeCompare(b.name);
+      } else if (sortSelect === 'studyHours') {
+        return b.studyHours - a.studyHours;
+      } else if (sortSelect === 'score') {
+        return b.score - a.score;
+      } else if (sortSelect === 'attendance') {
+        return b.attendance - a.attendance;
+      } else if (sortSelect === 'grade') {
+        return a.grade.localeCompare(b.grade);
+      }
+      return 0;
+    });
+  }
+  
+  renderTable(filtered);
+  updateRowCount(filtered.length);
 }
 
 /**
@@ -1229,8 +1283,14 @@ function applyFilterSort() {
  *  4. Update #rowCount with window.DS.length
  */
 function resetTable() {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 1: resetTable() is not implemented yet.");
+  const filterInput = document.getElementById('filterInput');
+  const sortSelect = document.getElementById('sortSelect');
+  
+  if (filterInput) filterInput.value = '';
+  if (sortSelect) sortSelect.value = 'none';
+  
+  renderTable(window.DS);
+  updateRowCount(window.DS.length);
 }
 
 /**
@@ -1259,13 +1319,53 @@ function resetTable() {
  * SET innerHTML, not textContent, so the display font renders correctly.
  */
 function renderSummaryCards(data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 1: renderSummaryCards() is not implemented yet.");
+  if (data.length === 0) {
+    document.getElementById('cardMeanScore').innerHTML = '—';
+    document.getElementById('cardTopScorer').innerHTML = '—';
+    document.getElementById('cardPassRate').innerHTML = '—';
+    document.getElementById('cardAvgHours').innerHTML = '—';
+    return;
+  }
+  
+  // Mean Score
+  const meanScore = mean(data.map(d => d.score)).toFixed(1);
+  document.getElementById('cardMeanScore').innerHTML = meanScore;
+  
+  // Top Scorer
+  const topScorer = data.reduce((best, d) => d.score > best.score ? d : best);
+  document.getElementById('cardTopScorer').innerHTML = topScorer.name;
+  
+  // Pass Rate
+  const passing = data.filter(d => d.score >= 60).length;
+  const passRate = Math.round((passing / data.length) * 100) + '%';
+  document.getElementById('cardPassRate').innerHTML = passRate;
+  
+  // Average Hours
+  const avgHours = mean(data.map(d => d.studyHours)).toFixed(1);
+  document.getElementById('cardAvgHours').innerHTML = avgHours;
 }
 
 /* Student 1 DOMContentLoaded entry point */
 document.addEventListener('DOMContentLoaded', () => {
   loadDataset(); // ← This call is already here; just implement the function above
+  
+  // Wire up additional event listeners for better UX
+  const filterInput = document.getElementById('filterInput');
+  const sortSelect = document.getElementById('sortSelect');
+  
+  // Allow Enter key to apply filter
+  if (filterInput) {
+    filterInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilterSort();
+    });
+  }
+  
+  // Allow sort dropdown to trigger apply automatically
+  if (sortSelect) {
+    sortSelect.addEventListener('change', applyFilterSort);
+  }
+  
+  console.log('✓ All event listeners wired up');
 });
 
 
@@ -1294,10 +1394,10 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initCharts() {
   // ↓ TODO: Implement this function ↓
-  // drawBarChart('barChart', window.DS);
-  // drawScatterPlot('scatterChart', window.DS);
-  // drawDoughnut('doughnutChart', window.DS);
-  console.warn("⚠ Student 2: initCharts() is not implemented yet.");
+  drawBarChart('barChart', window.DS);
+  drawScatterPlot('scatterChart', window.DS);
+  drawDoughnut('doughnutChart', window.DS);
+  console.log("✅ Student 2: initCharts() implemented and called.");
 }
 
 /**
@@ -1322,8 +1422,44 @@ function initCharts() {
  *       document.getElementById(canvasId).style.display = 'block';
  */
 function drawBarChart(canvasId, data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 2: drawBarChart() is not implemented yet.");
+  // Sort data by score descending, take top 10
+  const sortedData = [...data].sort((a, b) => b.score - a.score).slice(0, 10);
+  
+  // Destroy old chart if exists
+  if (window.CHARTS[canvasId]) {
+    window.CHARTS[canvasId].destroy();
+  }
+  
+  // Get canvas context
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Create chart
+  const chartOptions = chartTheme();
+  chartOptions.indexAxis = 'y';
+  chartOptions.scales.x = {
+    ...chartOptions.scales.x,
+    min: 0,
+    max: 100
+  };
+  
+  window.CHARTS[canvasId] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sortedData.map(d => d.name),
+      datasets: [{
+        label: 'Final Score',
+        data: sortedData.map(d => d.score),
+        backgroundColor: 'rgba(217,79,61,0.8)',
+        borderColor: 'rgba(217,79,61,1)',
+        borderWidth: 1
+      }]
+    },
+    options: chartOptions
+  });
+  
+  // Hide placeholder, show canvas
+  document.getElementById('barPlaceholder').style.display = 'none';
+  document.getElementById(canvasId).style.display = 'block';
 }
 
 /**
@@ -1350,8 +1486,72 @@ function drawBarChart(canvasId, data) {
  *  7. Hide placeholder, show canvas
  */
 function drawScatterPlot(canvasId, data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 2: drawScatterPlot() is not implemented yet.");
+  // Build points array
+  const points = data.map(d => ({ x: d.attendance, y: d.score }));
+  
+  // Destroy old chart if exists
+  if (window.CHARTS[canvasId]) {
+    window.CHARTS[canvasId].destroy();
+  }
+  
+  // Get canvas context
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Prepare datasets
+  const datasets = [{
+    label: 'Students',
+    data: points,
+    backgroundColor: '#3a7d5c',
+    pointRadius: 7,
+    pointHoverRadius: 10,
+    showLine: false
+  }];
+  
+  // Add regression line as second dataset
+  const attendances = data.map(d => d.attendance);
+  const scores = data.map(d => d.score);
+  const regression = linearRegression(attendances, scores);
+  
+  if (regression) {
+    const x1 = 55, x2 = 100;
+    const y1 = regression.slope * x1 + regression.intercept;
+    const y2 = regression.slope * x2 + regression.intercept;
+    
+    datasets.push({
+      label: 'Regression Line',
+      data: [{ x: x1, y: y1 }, { x: x2, y: y2 }],
+      type: 'line',
+      borderColor: '#d94f3d',
+      borderWidth: 2,
+      borderDash: [5, 5],
+      fill: false,
+      pointRadius: 0,
+      tension: 0,
+      interactive: false
+    });
+  }
+  
+  // Create chart
+  const chartOptions = chartTheme();
+  chartOptions.plugins.tooltip.callbacks = {
+    label: function(ctx) {
+      const index = ctx.dataIndex;
+      const student = data[index];
+      return `${student.name}: ${ctx.parsed.y}`;
+    }
+  };
+  
+  window.CHARTS[canvasId] = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: datasets
+    },
+    options: chartOptions
+  });
+  
+  // Hide placeholder, show canvas
+  document.getElementById('scatterPlaceholder').style.display = 'none';
+  document.getElementById(canvasId).style.display = 'block';
 }
 
 /**
@@ -1379,8 +1579,45 @@ function drawScatterPlot(canvasId, data) {
  *  8. Hide placeholder, show canvas
  */
 function drawDoughnut(canvasId, data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 2: drawDoughnut() is not implemented yet.");
+  // Count each grade
+  const counts = { A: 0, B: 0, C: 0, D: 0 };
+  data.forEach(d => counts[d.grade]++);
+  
+  // Destroy old chart if exists
+  if (window.CHARTS[canvasId]) {
+    window.CHARTS[canvasId].destroy();
+  }
+  
+  // Get canvas context
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Create chart
+  const chartOptions = chartTheme();
+  chartOptions.cutout = '60%';
+  chartOptions.plugins.tooltip.callbacks = {
+    label: function(ctx) {
+      const pct = ((ctx.parsed / data.length) * 100).toFixed(1);
+      return `Grade ${ctx.label}: ${ctx.parsed} students (${pct}%)`;
+    }
+  };
+  
+  window.CHARTS[canvasId] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['A', 'B', 'C', 'D'],
+      datasets: [{
+        data: [counts.A, counts.B, counts.C, counts.D],
+        backgroundColor: ['#2a7a50', '#3a6ea8', '#b5820d', '#d94f3d'],
+        borderWidth: 2,
+        borderColor: '#1a2035'
+      }]
+    },
+    options: chartOptions
+  });
+  
+  // Hide placeholder, show canvas
+  document.getElementById('doughnutPlaceholder').style.display = 'none';
+  document.getElementById(canvasId).style.display = 'block';
 }
 
 /**
@@ -1444,8 +1681,11 @@ function chartTheme() {
  *   variance([2, 4, 4, 4, 5, 5, 7, 9]) → 4.00
  */
 function variance(arr) {
-  // ↓ TODO: Implement this function ↓
-  throw new Error("Student 2: variance() not implemented yet");
+  if (!arr || arr.length === 0) return 0;
+  const mu = mean(arr);
+  const squaredDiffs = arr.map(x => Math.pow(x - mu, 2));
+  const sum = squaredDiffs.reduce((a, b) => a + b, 0);
+  return Math.round((sum / arr.length) * 100) / 100;
 }
 
 /**
@@ -1459,8 +1699,7 @@ function variance(arr) {
  * ONE-LINER HINT: return Math.round(Math.sqrt(variance(arr)) * 100) / 100;
  */
 function stdDev(arr) {
-  // ↓ TODO: Implement this function ↓
-  throw new Error("Student 2: stdDev() not implemented yet");
+  return Math.round(Math.sqrt(variance(arr)) * 100) / 100;
 }
 
 /**
@@ -1488,8 +1727,21 @@ function stdDev(arr) {
  *   Full string: e.g. "Strong Positive Correlation"
  */
 function pearsonCorr(x, y) {
-  // ↓ TODO: Implement this function ↓
-  throw new Error("Student 2: pearsonCorr() not implemented yet");
+  if (!x || !y || x.length !== y.length || x.length === 0) return 0;
+  
+  const mx = mean(x), my = mean(y);
+  let num = 0, denomX = 0, denomY = 0;
+  
+  for (let i = 0; i < x.length; i++) {
+    const dx = x[i] - mx;
+    const dy = y[i] - my;
+    num += dx * dy;
+    denomX += dx * dx;
+    denomY += dy * dy;
+  }
+  
+  const r = num / Math.sqrt(denomX * denomY);
+  return Math.round(r * 10000) / 10000;
 }
 
 /**
@@ -1513,8 +1765,27 @@ function pearsonCorr(x, y) {
  *   { slope: 2.1842, intercept: 44.6310, rSquared: 0.9321 }
  */
 function linearRegression(x, y) {
-  // ↓ TODO: Implement this function ↓
-  throw new Error("Student 2: linearRegression() not implemented yet");
+  if (!x || !y || x.length !== y.length || x.length === 0) return null;
+  
+  const mx = mean(x), my = mean(y);
+  let num = 0, denom = 0;
+  
+  for (let i = 0; i < x.length; i++) {
+    const dx = x[i] - mx;
+    const dy = y[i] - my;
+    num += dx * dy;
+    denom += dx * dx;
+  }
+  
+  const slope = num / denom;
+  const intercept = my - slope * mx;
+  const rSquared = Math.pow(pearsonCorr(x, y), 2);
+  
+  return {
+    slope: Math.round(slope * 10000) / 10000,
+    intercept: Math.round(intercept * 10000) / 10000,
+    rSquared: Math.round(rSquared * 10000) / 10000
+  };
 }
 
 /**
@@ -1556,8 +1827,46 @@ function linearRegression(x, y) {
  *                  (predicted score for a student who studies 15 hrs/week)
  */
 function renderAnalysis(data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 2: renderAnalysis() is not implemented yet.");
+  const scores = data.map(d => d.score);
+  const hours = data.map(d => d.studyHours);
+  const attend = data.map(d => d.attendance);
+  
+  // Descriptive Stats
+  document.getElementById('an').textContent = data.length;
+  document.getElementById('aMin').textContent = Math.min(...scores);
+  document.getElementById('aMax').textContent = Math.max(...scores);
+  document.getElementById('aRange').textContent = Math.max(...scores) - Math.min(...scores);
+  document.getElementById('aVariance').textContent = variance(scores);
+  document.getElementById('aStdDev').textContent = stdDev(scores);
+  
+  // Correlation
+  const rHours = pearsonCorr(hours, scores);
+  const rAttend = pearsonCorr(attend, scores);
+  
+  document.getElementById('rPearson').textContent = rHours.toFixed(4);
+  document.getElementById('rInterp').textContent = getCorrelationInterpretation(rHours);
+  document.getElementById('rPearson2').textContent = rAttend.toFixed(4);
+  document.getElementById('rInterp2').textContent = getCorrelationInterpretation(rAttend);
+  document.getElementById('rStronger').textContent = Math.abs(rHours) > Math.abs(rAttend) ? "Study Hours" : "Attendance";
+  document.getElementById('rDirection').textContent = (rHours > 0 && rAttend > 0) ? "Both positive" : (rHours < 0 && rAttend < 0) ? "Both negative" : "Mixed";
+  
+  // Regression
+  const reg = linearRegression(hours, scores);
+  document.getElementById('regEquation').textContent = `score = ${reg.slope}·hours + ${reg.intercept}`;
+  document.getElementById('regSlope').textContent = reg.slope;
+  document.getElementById('regIntercept').textContent = reg.intercept;
+  document.getElementById('regR2').textContent = reg.rSquared;
+  document.getElementById('regInterp').textContent = reg.rSquared >= 0.9 ? "Excellent fit" : reg.rSquared >= 0.7 ? "Good fit" : "Weak fit";
+  document.getElementById('regPredict').textContent = (reg.slope * 15 + reg.intercept).toFixed(1);
+}
+
+/**
+ * Helper function for correlation interpretation
+ */
+function getCorrelationInterpretation(r) {
+  const strength = Math.abs(r) >= 0.7 ? "Strong" : Math.abs(r) >= 0.4 ? "Moderate" : "Weak";
+  const direction = r > 0 ? "Positive" : "Negative";
+  return `${strength} ${direction} Correlation`;
 }
 
 /**
@@ -1584,8 +1893,33 @@ function renderAnalysis(data) {
  *     `<p class="insight-text">${yourNarrativeString}</p>`;
  */
 function renderInsights(data) {
-  // ↓ TODO: Implement this function ↓
-  console.warn("⚠ Student 2: renderInsights() is not implemented yet.");
+  const scores = data.map(d => d.score);
+  const hours = data.map(d => d.studyHours);
+  const attend = data.map(d => d.attendance);
+  
+  const meanScore = mean(scores).toFixed(1);
+  const passRate = Math.round((data.filter(d => d.score >= 60).length / data.length) * 100);
+  const rHours = pearsonCorr(hours, scores);
+  const reg = linearRegression(hours, scores);
+  const predictedScore = (reg.slope * 15 + reg.intercept).toFixed(1);
+  
+  const noJobStudents = data.filter(d => !d.job);
+  const noJobAvgScore = mean(noJobStudents.map(d => d.score)).toFixed(1);
+  
+  const correlationInterp = getCorrelationInterpretation(rHours);
+  
+  const narrative = `
+    The cohort achieved a mean final score of <span class="highlight">${meanScore}</span> out of 100, 
+    with a pass rate of <span class="highlight">${passRate}%</span> for students scoring 60 or above. 
+    Study hours showed a <span class="highlight">${correlationInterp.toLowerCase()}</span> with final scores, 
+    indicating that increased study time is associated with higher academic performance. 
+    The regression model predicts that a student studying 15 hours per week would achieve a score of 
+    <span class="highlight">${predictedScore}</span>, providing a practical tool for academic planning. 
+    Interestingly, students without part-time jobs achieved an average score of 
+    <span class="highlight">${noJobAvgScore}</span>, suggesting that work commitments may impact academic outcomes.
+  `;
+  
+  document.getElementById('insightsBody').innerHTML = `<p class="insight-text">${narrative}</p>`;
 }
 
 /* ─────────────────────────────────────────────────────────────────
