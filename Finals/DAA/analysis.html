@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis - World Bank Debt Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <h1>🌍 WORLD BANK DEBT</h1>
+                    <p>International Debt Statistics</p>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Overview</a></li>
+                    <li><a href="analysis.html" class="nav-link">Analysis</a></li>
+                    <li><a href="data.html" class="nav-link">Data</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h2>DEBT ANALYSIS</h2>
+                <p>VISUALIZE GLOBAL DEBT PATTERNS AND TRENDS</p>
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filter-section">
+            <div class="container">
+                <h2>FILTER & ANALYZE</h2>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="countryFilter">Search Country:</label>
+                        <input type="text" id="countryFilter" placeholder="e.g., China, India..." list="countryList">
+                    </div>
+                    <div class="filter-group">
+                        <label for="debtTypeFilter">Debt Indicator:</label>
+                        <select id="debtTypeFilter">
+                            <option value="">All Indicators</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="yearFilter">Year:</label>
+                        <select id="yearFilter">
+                            <option value="">All Years</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="filterData()">APPLY FILTERS</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <div class="container">
+                <h2>VISUALIZATIONS</h2>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>📊 TOP 10 COUNTRIES BY DEBT</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="topCountriesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>🎯 DEBT DISTRIBUTION BY TYPE</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="debtTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Additional Charts -->
+        <section class="charts-section">
+            <div class="container">
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>📈 DEBT TRENDS OVER TIME</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="trendsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>🌍 REGIONAL DISTRIBUTION</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="regionalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <div class="container">
+                <h2>ANALYSIS INSIGHTS</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-number">1</div>
+                        <h3>Filter By Country</h3>
+                        <p>Select specific countries to analyze their debt metrics. Compare debt levels across different nations and time periods.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">2</div>
+                        <h3>Indicator Selection</h3>
+                        <p>Choose different debt indicators to understand various aspects of international debt including external debt and ratios.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">3</div>
+                        <h3>Time Analysis</h3>
+                        <p>Select specific years to see how debt levels have changed over time. Identify trends and economic patterns.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">4</div>
+                        <h3>Chart Comparison</h3>
+                        <p>Use the visualizations to compare debt distribution, identify leading debtors, and analyze regional patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>💻 WORLD BANK DEBT DASHBOARD | 🔗 <a href="https://www.kaggle.com/datasets/theworldbank/world-bank-international-debt-statistics/" target="_blank">Kaggle Data</a> | 🌐 <a href="https://www.worldbank.org/" target="_blank">World Bank</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Load data and initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorldBankData();
+        });
+    </script>
+</body>
+</html>

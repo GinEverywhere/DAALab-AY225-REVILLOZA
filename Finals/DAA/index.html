@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Bank International Debt Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <h1>🌍 WORLD BANK DEBT</h1>
+                    <p>International Debt Statistics</p>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Overview</a></li>
+                    <li><a href="analysis.html" class="nav-link">Analysis</a></li>
+                    <li><a href="data.html" class="nav-link">Data</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h2>International Debt Statistics</h2>
+                <p>EXPLORE GLOBAL DEBT PATTERNS AND ECONOMIC INDICATORS</p>
+            </div>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="stats-section">
+            <div class="container">
+                <h2>GLOBAL STATISTICS</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🌍</div>
+                        <h3>Total Countries</h3>
+                        <p class="stat-value" id="countryCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <h3>Total Records</h3>
+                        <p class="stat-value" id="recordCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏷️</div>
+                        <h3>Indicators</h3>
+                        <p class="stat-value" id="categoryCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <h3>Year Range</h3>
+                        <p class="stat-value" id="yearRange">1970-2023</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Use Section -->
+        <section class="info-section">
+            <div class="container">
+                <h2>HOW TO USE THIS DASHBOARD</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-number">1</div>
+                        <h3>Explore Overview</h3>
+                        <p>View global debt statistics with country counts and data ranges. Understand the scale of international debt at a glance.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">2</div>
+                        <h3>Analyze Patterns</h3>
+                        <p>Visit the Analysis page to see interactive charts showing debt distribution by country and debt type indicators.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">3</div>
+                        <h3>Filter Data</h3>
+                        <p>Search by country, debt indicator type, and year to customize your analysis and find specific insights.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">4</div>
+                        <h3>Detailed Records</h3>
+                        <p>Browse the Data page to see detailed records in a comprehensive table with pagination support.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Engine Section (Student 1 Contribution) -->
+        <section class="data-engine-section">
+            <div class="container">
+                <h2>INTERACTIVE DATA ENGINE</h2>
+                
+                <!-- Summary Cards (TASK E) -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <h3>Mean Value</h3>
+                        <p class="stat-value" id="cardMeanValue">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <h3>Highest Country</h3>
+                        <p class="stat-value" id="cardHighest">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌍</div>
+                        <h3>Countries</h3>
+                        <p class="stat-value" id="cardCountries">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <h3>Avg Year</h3>
+                        <p class="stat-value" id="cardAvgYear">—</p>
+                    </div>
+                </div>
+
+                <!-- Filter & Sort Controls (TASK C) -->
+                <div class="filter-section">
+                    <h3>FILTER & SORT DATA</h3>
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label for="filterInput">Filter by Country:</label>
+                            <input type="text" id="filterInput" placeholder="e.g., China, India..." list="countryList">
+                        </div>
+                        <div class="filter-group">
+                            <label for="sortSelect">Sort By:</label>
+                            <select id="sortSelect">
+                                <option value="none">None</option>
+                                <option value="country">Country (A-Z)</option>
+                                <option value="value">Value (High-Low)</option>
+                                <option value="year">Year (Recent First)</option>
+                            </select>
+                        </div>
+                        <div class="filter-buttons">
+                            <button id="applyBtn" class="btn-primary">APPLY FILTER & SORT</button>
+                            <button id="resetBtn" class="btn-secondary">RESET</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row Count -->
+                <div class="row-count-section">
+                    <p>Showing <strong id="rowCount">0</strong> records</p>
+                </div>
+
+                <!-- Data Table -->
+                <div class="table-wrapper">
+                    <table id="dataTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Country Code</th>
+                                <th>Country Name</th>
+                                <th>Indicator Name</th>
+                                <th>Year</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <div class="container">
+                <h2>DATA SOURCE</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-number">📈</div>
+                        <h3>World Bank Data</h3>
+                        <p>This dashboard uses the World Bank International Debt Statistics dataset from Kaggle, containing comprehensive global debt information.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">🔍</div>
+                        <h3>Comprehensive Coverage</h3>
+                        <p>Includes data from multiple countries tracking various debt indicators including external debt, debt ratios, and financial metrics.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">⏱️</div>
+                        <h3>Historical Data</h3>
+                        <p>Access decades of historical data spanning from 1970 to 2023, enabling long-term trend analysis and economic comparisons.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">🎯</div>
+                        <h3>Research Ready</h3>
+                        <p>Perfect for academic research, economic analysis, and policy development. Use the data for your finals project analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>💻 WORLD BANK DEBT DASHBOARD | 🔗 <a href="https://www.kaggle.com/datasets/theworldbank/world-bank-international-debt-statistics/" target="_blank">Kaggle Data</a> | 🌐 <a href="https://www.worldbank.org/" target="_blank">World Bank</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Load statistics on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorldBankData();
+        });
+    </script>
+</body>
+</html>
