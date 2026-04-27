@@ -7,12 +7,14 @@ A collaborative data science project featuring a World Bank International Debt S
 
 ### Tasks Implemented
 
-#### TASK A: loadDataset()
+#### TASK A: loadDataset() ✅ COMPLETE
 - Copies allData into window.DS using spread operator
 - Calls renderTable() to display data
 - Calls renderSummaryCards() to show statistics
 - Triggers onDataReady() callback for Student 2
 - Updates row count display
+- IMPLEMENTED in script.js line 524-532
+- Hooked into loadWorldBankData() for automatic initialization
 
 #### TASK B: renderTable(data)
 - Clears and renders table rows
