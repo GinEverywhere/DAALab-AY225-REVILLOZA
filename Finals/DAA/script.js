@@ -747,14 +747,46 @@ function updateRowCount(count) {
     }
 }
 
+function downloadFilteredData() {
+    if (!filteredData || filteredData.length === 0) {
+        alert('No filtered records are available to download.');
+        return;
+    }
+
+    const headers = ['Country Code', 'Country Name', 'Indicator Name', 'Year', 'Value'];
+    const rows = filteredData.map(item => [
+        item['Country Code'] || '',
+        item['Country Name'] || '',
+        item['Indicator Name'] || '',
+        item['Year'] || '',
+        item['Value'] != null ? item['Value'] : ''
+    ]);
+
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'filtered_debt_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
 // Wire up event listeners for Data Engine
 document.addEventListener('DOMContentLoaded', () => {
     const applyBtn = document.getElementById('applyBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
     const filterInput = document.getElementById('filterInput');
     
     if (applyBtn) applyBtn.addEventListener('click', applyFilterSort);
     if (resetBtn) resetBtn.addEventListener('click', resetTable);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadFilteredData);
     
     // Allow Enter key to apply filter
     if (filterInput) {
