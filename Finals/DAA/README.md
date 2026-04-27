@@ -31,15 +31,19 @@ A collaborative data science project featuring a World Bank International Debt S
 - IMPLEMENTED in script.js line 578-614
 - Event listeners wired to #applyBtn and #filterInput (Enter key)
 
-#### TASK D: resetTable()
+#### TASK D: resetTable() ✅ COMPLETE
 - Clears filter and sort inputs
 - Restores original dataset view
+- IMPLEMENTED in script.js line 616-630
+- Connected to #resetBtn click event
 
-#### TASK E: renderSummaryCards(data)
+#### TASK E: renderSummaryCards(data) ✅ COMPLETE
 - Displays mean value across all records
 - Shows country with highest value
 - Counts unique countries in dataset
 - Calculates average year represented
+- IMPLEMENTED in script.js line 635-672
+- Handles empty datasets with '—' placeholder
 
 ## Files
 - `index.html` - Main dashboard with Data Engine section
