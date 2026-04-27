@@ -163,7 +163,9 @@ function loadSampleData() {
         { 'Country Name': 'India', 'Country Code': 'IND', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 21.4 },
         { 'Country Name': 'Brazil', 'Country Code': 'BRA', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 31.8 },
         { 'Country Name': 'United Kingdom', 'Country Code': 'GBR', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 25.6 },
-        { 'Country Name': 'France', 'Country Code': 'FRA', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 28.3 }
+        { 'Country Name': 'France', 'Country Code': 'FRA', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 28.3 },
+        { 'Country Name': 'Canada', 'Country Code': 'CAN', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 19.5 },
+        { 'Country Name': 'Italy', 'Country Code': 'ITA', 'Indicator Name': 'External Debt (% of GNI)', 'Indicator Code': 'DT.EXT.DECT.ZS', 'Year': '2020', 'Value': 24.7 }
     ];
     
     filteredData = [...allData];
