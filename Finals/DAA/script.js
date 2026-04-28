@@ -9,12 +9,26 @@ let trendsChart = null;
 let regionalChart = null;
 let barChart = null;
 
+// STUDENT 2 Chart instances
+let barChart = null;
+let scatterChart = null;
+let doughnutChart = null;
+
 // STUDENT 1 CONTRIBUTION: Data Engine namespace
 window.DS = [];
 
 // Callback for Student 2's code
 function onDataReady() {
     console.log("✓ Data Engine ready! Student 2 can initialize their code.");
+    // Student 2: Initialize visualizations and analysis
+    if (filteredData.length > 0) {
+        drawBarChart('barChart', filteredData);
+        drawScatterPlot('scatterChart', filteredData);
+        drawDoughnut('doughnutChart', filteredData);
+        renderAnalysis(filteredData);
+        renderInsights(filteredData);
+        console.log('✓ Student 2 visualizations initialized');
+    }
 }
 
 // Initialize the application
@@ -186,8 +200,20 @@ function updateDashboard() {
 function updateStatistics() {
     const uniqueCountries = new Set(allData.map(d => d['Country Code'] || '').filter(x => x)).size;
     const uniqueIndicators = new Set(allData.map(d => d['Indicator Code'] || '').filter(x => x)).size;
-    const minYear = Math.min(...allData.map(d => parseInt(d['Year']) || 9999)).toString();
-    const maxYear = Math.max(...allData.map(d => parseInt(d['Year']) || 0)).toString();
+    
+    // Use reduce instead of spread operator to avoid stack overflow with large arrays
+    let minYear = 9999;
+    let maxYear = 0;
+    for (let i = 0; i < allData.length; i++) {
+        const year = parseInt(allData[i]['Year']) || 0;
+        if (year > 0) {
+            if (year < minYear) minYear = year;
+            if (year > maxYear) maxYear = year;
+        }
+    }
+    minYear = minYear === 9999 ? 0 : minYear;
+    const minYearStr = minYear.toString();
+    const maxYearStr = maxYear.toString();
 
     console.log('Countries:', uniqueCountries);
     console.log('Records:', allData.length);
@@ -199,7 +225,7 @@ function updateStatistics() {
     
     const yearRangeEl = document.getElementById('yearRange');
     if (yearRangeEl && uniqueCountries > 0) {
-        yearRangeEl.textContent = `${minYear}-${maxYear}`;
+        yearRangeEl.textContent = `${minYearStr}-${maxYearStr}`;
     }
 }
 
@@ -287,6 +313,15 @@ function filterData() {
     currentPage = 1;
     updateCharts();
     displayTableData();
+    
+    // Update Student 2 visualizations
+    if (filteredData.length > 0) {
+        drawBarChart('barChart', filteredData);
+        drawScatterPlot('scatterChart', filteredData);
+        drawDoughnut('doughnutChart', filteredData);
+        renderAnalysis(filteredData);
+        renderInsights(filteredData);
+    }
 }
 
 // Update charts
@@ -517,6 +552,181 @@ function updateDebtTypeChart() {
                             const value = context.parsed || 0;
                             return label + ': ' + value.toLocaleString(undefined, {maximumFractionDigits: 2});
                         }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Chart 3: Debt trends over time
+function updateTrendsChart() {
+    if (filteredData.length === 0) {
+        console.warn('No data to display in trends chart');
+        return;
+    }
+
+    const yearTrends = {};
+    
+    filteredData.forEach(item => {
+        if (item['Year'] && item['Value']) {
+            const year = item['Year'];
+            const value = typeof item['Value'] === 'string' ? parseFloat(item['Value']) : item['Value'];
+            const numValue = isNaN(value) ? 0 : value;
+            
+            yearTrends[year] = (yearTrends[year] || 0) + numValue;
+        }
+    });
+
+    const sortedYears = Object.keys(yearTrends).sort();
+    const labels = sortedYears;
+    const data = sortedYears.map(year => yearTrends[year]);
+
+    const ctx = document.getElementById('trendsChart');
+    if (!ctx) return;
+
+    if (trendsChart) {
+        trendsChart.destroy();
+    }
+
+    trendsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Debt Trend',
+                data: data,
+                borderColor: 'rgba(57, 255, 20, 1)',
+                backgroundColor: 'rgba(57, 255, 20, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(57, 255, 20, 1)',
+                pointBorderColor: '#0a0e27',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(57, 255, 20, 0.1)'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        },
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(57, 255, 20, 0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#e0e0e0'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Chart 4: Regional distribution
+function updateRegionalChart() {
+    if (filteredData.length === 0) {
+        console.warn('No data to display in regional chart');
+        return;
+    }
+
+    const regionalData = {};
+    
+    filteredData.forEach(item => {
+        if (item['Country Code'] && item['Value']) {
+            const code = item['Country Code'];
+            const value = typeof item['Value'] === 'string' ? parseFloat(item['Value']) : item['Value'];
+            const numValue = isNaN(value) ? 0 : value;
+            
+            regionalData[code] = (regionalData[code] || 0) + numValue;
+        }
+    });
+
+    const sorted = Object.entries(regionalData)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+    const labels = sorted.map(item => item[0]);
+    const data = sorted.map(item => item[1]);
+
+    const ctx = document.getElementById('regionalChart');
+    if (!ctx) return;
+
+    if (regionalChart) {
+        regionalChart.destroy();
+    }
+
+    const colors = [
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(255, 206, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(255, 159, 64, 0.8)',
+        'rgba(199, 199, 199, 0.8)',
+        'rgba(83, 102, 255, 0.8)'
+    ];
+
+    regionalChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Regional Debt Distribution',
+                data: data,
+                borderColor: 'rgba(181, 55, 242, 1)',
+                backgroundColor: 'rgba(181, 55, 242, 0.25)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(181, 55, 242, 1)',
+                pointBorderColor: '#0a0e27',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    ticks: {
+                        color: '#e0e0e0',
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(181, 55, 242, 0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#e0e0e0'
                     }
                 }
             }
@@ -797,3 +1007,494 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('✓ Data Engine event listeners wired up');
 });
+
+// ============================================================
+// STUDENT 2 CONTRIBUTION — Visualization Layer (Part A)
+// ============================================================
+
+/**
+ * drawBarChart(elementId, data)
+ * - Sort data by value descending, take top 10
+ * - Horizontal bar chart (type: 'bar', indexAxis: 'y')
+ * - Labels = country names
+ * - Bars = coral color #d94f3d at 80% opacity
+ * - X-axis: 0–max value
+ */
+function drawBarChart(elementId, data) {
+    if (!data || data.length === 0) {
+        console.warn('No data for bar chart');
+        return;
+    }
+
+    // Aggregate by country and sort
+    const countryTotals = {};
+    data.forEach(d => {
+        if (d['Country Name'] && d['Value']) {
+            const val = typeof d['Value'] === 'string' ? parseFloat(d['Value']) : d['Value'];
+            if (!isNaN(val)) {
+                countryTotals[d['Country Name']] = (countryTotals[d['Country Name']] || 0) + val;
+            }
+        }
+    });
+
+    const sorted = Object.entries(countryTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .reverse(); // Reverse for horizontal chart bottom-to-top
+
+    const labels = sorted.map(item => item[0]);
+    const values = sorted.map(item => item[1]);
+
+    const ctx = document.getElementById(elementId);
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (barChart) {
+        barChart.destroy();
+        barChart = null;
+    }
+
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Debt',
+                data: values,
+                backgroundColor: 'rgba(217, 79, 61, 0.8)',
+                borderColor: '#d94f3d',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#e0e0e0',
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(217, 79, 61, 0.1)'
+                    }
+                },
+                y: {
+                    ticks: { color: '#e0e0e0' },
+                    grid: { color: 'rgba(217, 79, 61, 0.1)' }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.x.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Hide placeholder, show canvas
+    const placeholder = document.getElementById(elementId + 'Placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    ctx.style.display = 'block';
+
+    console.log('✓ drawBarChart: Rendered top 10 countries');
+}
+
+/**
+ * drawScatterPlot(elementId, data)
+ * - Points: { x: one metric, y: another metric }
+ * - Color: sage green #3a7d5c
+ * - Add regression line as second dataset
+ */
+function drawScatterPlot(elementId, data) {
+    if (!data || data.length === 0) {
+        console.warn('No data for scatter plot');
+        return;
+    }
+
+    // Extract two dimensions for scatter
+    // Use Value vs Year for X vs Y
+    const points = data
+        .filter(d => d['Value'] && d['Year'])
+        .map(d => ({
+            x: parseInt(d['Year']) || 0,
+            y: typeof d['Value'] === 'string' ? parseFloat(d['Value']) : d['Value'],
+            label: d['Country Name'] || ''
+        }))
+        .filter(p => !isNaN(p.x) && !isNaN(p.y))
+        .slice(0, 100); // Limit to first 100 points for performance
+
+    if (points.length < 2) {
+        console.warn('Insufficient data for scatter plot');
+        return;
+    }
+
+    // Calculate linear regression
+    const regression = linearRegression(
+        points.map(p => p.x),
+        points.map(p => p.y)
+    );
+
+    const minX = Math.min(...points.map(p => p.x));
+    const maxX = Math.max(...points.map(p => p.x));
+
+    const regressionLine = [
+        { x: minX, y: regression.intercept + regression.slope * minX },
+        { x: maxX, y: regression.intercept + regression.slope * maxX }
+    ];
+
+    const ctx = document.getElementById(elementId);
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (scatterChart) {
+        scatterChart.destroy();
+        scatterChart = null;
+    }
+
+    scatterChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'Data Points',
+                    data: points,
+                    backgroundColor: 'rgba(58, 125, 92, 0.7)',
+                    borderColor: '#3a7d5c',
+                    borderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Regression Line',
+                    data: regressionLine,
+                    type: 'line',
+                    borderColor: '#d94f3d',
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0,
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                x: {
+                    title: { display: true, text: 'Year', color: '#e0e0e0' },
+                    ticks: { color: '#e0e0e0' },
+                    grid: { color: 'rgba(58, 125, 92, 0.1)' }
+                },
+                y: {
+                    title: { display: true, text: 'Debt Value', color: '#e0e0e0' },
+                    ticks: { color: '#e0e0e0' },
+                    grid: { color: 'rgba(58, 125, 92, 0.1)' }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: '#e0e0e0' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.dataset.label === 'Data Points') {
+                                return context.raw.label + ': ' + context.raw.y.toLocaleString();
+                            }
+                            return 'y: ' + context.raw.y.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const placeholder = document.getElementById(elementId + 'Placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    ctx.style.display = 'block';
+
+    console.log('✓ drawScatterPlot: Rendered with regression line');
+}
+
+/**
+ * drawDoughnut(elementId, data)
+ * - Count distribution by indicator type or category
+ * - Use different colors
+ * - cutout: '60%', show count + % in tooltip
+ */
+function drawDoughnut(elementId, data) {
+    if (!data || data.length === 0) {
+        console.warn('No data for doughnut chart');
+        return;
+    }
+
+    // Count by indicator type
+    const typeCounts = {};
+    data.forEach(d => {
+        const indicator = d['Indicator Name'] || 'Unknown';
+        typeCounts[indicator] = (typeCounts[indicator] || 0) + 1;
+    });
+
+    const labels = Object.keys(typeCounts);
+    const counts = Object.values(typeCounts);
+    const colors = [
+        'rgba(42, 122, 80, 0.8)',   // A - dark green
+        'rgba(58, 110, 168, 0.8)',  // B - blue
+        'rgba(181, 130, 13, 0.8)',  // C - gold
+        'rgba(217, 79, 61, 0.8)',   // D - coral
+        'rgba(100, 100, 180, 0.8)',
+        'rgba(180, 100, 100, 0.8)',
+        'rgba(100, 180, 100, 0.8)',
+        'rgba(180, 180, 100, 0.8)'
+    ];
+
+    const ctx = document.getElementById(elementId);
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (doughnutChart) {
+        doughnutChart.destroy();
+        doughnutChart = null;
+    }
+
+    const totalCount = counts.reduce((a, b) => a + b, 0);
+
+    doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: '#0a0e27',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#e0e0e0',
+                        padding: 15,
+                        font: { size: 11 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const percent = ((value / totalCount) * 100).toFixed(1);
+                            return label + ': ' + value + ' (' + percent + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const placeholder = document.getElementById(elementId + 'Placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    ctx.style.display = 'block';
+
+    console.log('✓ drawDoughnut: Rendered distribution');
+}
+
+// ============================================================
+// STUDENT 2 CONTRIBUTION — Analysis Engine (Part B)
+// ============================================================
+
+/**
+ * variance(arr) → σ² = Σ(xᵢ−μ)² / n
+ */
+function variance(arr) {
+    if (!arr || arr.length === 0) return 0;
+    
+    const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const squaredDiffs = arr.map(x => Math.pow(x - mean, 2));
+    return squaredDiffs.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+/**
+ * stdDev(arr) → σ = √variance(arr)
+ */
+function stdDev(arr) {
+    return Math.sqrt(variance(arr));
+}
+
+/**
+ * pearsonCorr(x, y) → r = Σ((xᵢ−x̄)(yᵢ−ȳ)) / √(Σ(xᵢ−x̄)²·Σ(yᵢ−ȳ)²)
+ */
+function pearsonCorr(x, y) {
+    if (!x || !y || x.length !== y.length || x.length < 2) return 0;
+
+    const meanX = x.reduce((a, b) => a + b, 0) / x.length;
+    const meanY = y.reduce((a, b) => a + b, 0) / y.length;
+
+    let numerator = 0;
+    let sumSqX = 0;
+    let sumSqY = 0;
+
+    for (let i = 0; i < x.length; i++) {
+        const diffX = x[i] - meanX;
+        const diffY = y[i] - meanY;
+        numerator += diffX * diffY;
+        sumSqX += diffX * diffX;
+        sumSqY += diffY * diffY;
+    }
+
+    const denominator = Math.sqrt(sumSqX * sumSqY);
+    return denominator === 0 ? 0 : numerator / denominator;
+}
+
+/**
+ * linearRegression(x, y) → { slope, intercept, rSquared }
+ */
+function linearRegression(x, y) {
+    if (!x || !y || x.length !== y.length || x.length < 2) {
+        return { slope: 0, intercept: 0, rSquared: 0 };
+    }
+
+    const n = x.length;
+    const meanX = x.reduce((a, b) => a + b, 0) / n;
+    const meanY = y.reduce((a, b) => a + b, 0) / n;
+
+    let numerator = 0;
+    let denominator = 0;
+
+    for (let i = 0; i < n; i++) {
+        numerator += (x[i] - meanX) * (y[i] - meanY);
+        denominator += (x[i] - meanX) * (x[i] - meanX);
+    }
+
+    const slope = denominator === 0 ? 0 : numerator / denominator;
+    const intercept = meanY - slope * meanX;
+
+    const r = pearsonCorr(x, y);
+    const rSquared = r * r;
+
+    return { slope, intercept, rSquared };
+}
+
+/**
+ * renderAnalysis(data)
+ * - Extract values for statistical analysis
+ * - Update all DOM stat elements
+ */
+function renderAnalysis(data) {
+    if (!data || data.length === 0) {
+        console.warn('No data for analysis');
+        return;
+    }
+
+    // Extract numerical values
+    const values = data
+        .map(d => typeof d['Value'] === 'string' ? parseFloat(d['Value']) : d['Value'])
+        .filter(v => !isNaN(v) && v !== null);
+
+    if (values.length === 0) {
+        console.warn('No valid numerical data for analysis');
+        return;
+    }
+
+    // Calculate basic statistics
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const varVal = variance(values);
+    const stdDevVal = stdDev(values);
+
+    // Extract years and values for correlation analysis
+    const years = data
+        .map(d => parseInt(d['Year']))
+        .filter(y => !isNaN(y));
+
+    let corrVal = 0, rSquaredVal = 0, slopeVal = 0, interceptVal = 0;
+
+    if (years.length >= 2 && years.length === values.length) {
+        const regression = linearRegression(years, values);
+        corrVal = pearsonCorr(years, values);
+        rSquaredVal = regression.rSquared;
+        slopeVal = regression.slope;
+        interceptVal = regression.intercept;
+    }
+
+    // Update DOM elements
+    document.getElementById('statMean').textContent = mean.toFixed(2);
+    document.getElementById('statVariance').textContent = varVal.toFixed(2);
+    document.getElementById('statStdDev').textContent = stdDevVal.toFixed(2);
+    document.getElementById('statMin').textContent = minVal.toFixed(2);
+    document.getElementById('statMax').textContent = maxVal.toFixed(2);
+    document.getElementById('statCorr').textContent = corrVal.toFixed(3);
+    document.getElementById('statRSquared').textContent = rSquaredVal.toFixed(3);
+    document.getElementById('statSlope').textContent = slopeVal.toFixed(6);
+    document.getElementById('statIntercept').textContent = interceptVal.toFixed(2);
+
+    console.log('✓ renderAnalysis: Updated all statistics');
+}
+
+/**
+ * renderInsights(data)
+ * - Build narrative insights from computed statistics
+ * - Display in #insightsBody with styled highlights
+ */
+function renderInsights(data) {
+    if (!data || data.length === 0) {
+        document.getElementById('insightsBody').innerHTML = 
+            '<p>No data available for insights.</p>';
+        return;
+    }
+
+    // Extract values
+    const values = data
+        .map(d => typeof d['Value'] === 'string' ? parseFloat(d['Value']) : d['Value'])
+        .filter(v => !isNaN(v));
+
+    if (values.length === 0) {
+        document.getElementById('insightsBody').innerHTML = 
+            '<p>No numerical data available for insights.</p>';
+        return;
+    }
+
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const stdDevVal = stdDev(values);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+
+    // Count by country
+    const uniqueCountries = new Set(data.map(d => d['Country Name']).filter(x => x)).size;
+
+    // Build narrative
+    const insight = `
+        <p>
+            Based on <span class="highlight">${data.length}</span> records from 
+            <span class="highlight">${uniqueCountries}</span> countries, we observe:
+        </p>
+        <p>
+            The mean debt value is <span class="highlight">${mean.toFixed(2)}</span> with a 
+            standard deviation of <span class="highlight">${stdDevVal.toFixed(2)}</span>. 
+            Values range from <span class="highlight">${minVal.toFixed(2)}</span> to 
+            <span class="highlight">${maxVal.toFixed(2)}</span>, indicating 
+            ${stdDevVal > mean * 0.5 ? 'substantial variation' : 'relatively consistent'} 
+            across the dataset.
+        </p>
+    `;
+
+    document.getElementById('insightsBody').innerHTML = insight;
+    console.log('✓ renderInsights: Generated narrative insights');
+}
