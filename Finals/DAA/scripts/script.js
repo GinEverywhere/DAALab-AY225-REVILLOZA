@@ -381,7 +381,9 @@ function updateCharts() {
     updateDebtTypeChart(chartRows);
     updateTrendsChart(chartRows);
     updateRegionalChart(chartRows);
-    initAdditionalCharts(chartRows);
+    // For scatter plot, use all years but respect the indicator filter
+    const scatterRows = getChartRowsAllYears(filteredData);
+    initAdditionalCharts(scatterRows);
 }
 
 function clearCharts() {
@@ -405,6 +407,15 @@ function getChartRows(data) {
         const latestYear = maxOf(out.map(r => Number(r['Year'])));
         if (Number.isFinite(latestYear)) out = out.filter(r => Number(r['Year']) === latestYear);
     }
+    return out;
+}
+
+function getChartRowsAllYears(data) {
+    const rows = data.filter(isDebtRow);
+    const typeFilter = document.getElementById('debtTypeFilter')?.value || '';
+
+    let out = rows;
+    if (typeFilter) out = out.filter(r => r['Indicator Name'] === typeFilter);
     return out;
 }
 
@@ -632,7 +643,10 @@ function drawScatterPlot(canvasId, data) {
     const indicatorName = document.getElementById('debtTypeFilter')?.value || firstIndicatorName(data, countryCode);
 
     const points = getCountryIndicatorSeries(data, countryCode, indicatorName);
-    if (points.length < 2) return;
+    if (points.length < 2) {
+        console.warn('⚠️ Insufficient data for scatter plot. Need at least 2 data points. Got:', points.length);
+        return;
+    }
 
     safeDestroy(scatterChart);
 
@@ -705,6 +719,7 @@ function drawScatterPlot(canvasId, data) {
     const placeholder = document.getElementById('scatterPlaceholder');
     if (placeholder) placeholder.style.display = 'none';
     ctx.style.display = 'block';
+    console.log('✓ Scatter plot created with', points.length, 'data points');
 }
 
 function drawDoughnut(canvasId, data) {
