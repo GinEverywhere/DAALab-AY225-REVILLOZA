@@ -60,7 +60,7 @@ async function loadWorldBankData() {
     console.log('Protocol:', window.location.protocol);
 
     try {
-        const r = await fetch('IDSData.csv');
+        const r = await fetch('../data/IDSData.csv');
         console.log('✓ Fetch successful! Response:', r.status, r.statusText);
         if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
 

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data - World Bank Debt Dashboard</title>
+    <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <h1>🌍 WORLD BANK DEBT</h1>
+                    <p>International Debt Statistics</p>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Overview</a></li>
+                    <li><a href="analysis.html" class="nav-link">Analysis</a></li>
+                    <li><a href="data.html" class="nav-link">Data</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h2>DETAILED DATA</h2>
+                <p>BROWSE AND SEARCH COMPLETE DEBT RECORDS</p>
+            </div>
+        </section>
+
+        <!-- Summary Cards (TASK E) -->
+        <section class="stats-section">
+            <div class="container">
+                <h2>DATA SUMMARY</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <h3>Mean Value</h3>
+                        <p class="stat-value" id="cardMeanValue">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <h3>Highest Country</h3>
+                        <p class="stat-value" id="cardHighest">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌍</div>
+                        <h3>Countries</h3>
+                        <p class="stat-value" id="cardCountries">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <h3>Avg Year</h3>
+                        <p class="stat-value" id="cardAvgYear">—</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters Section (TASK C) -->
+        <section class="filter-section">
+            <div class="container">
+                <h2>FILTER & SORT DATA</h2>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="filterInput">Filter by Country:</label>
+                        <input type="text" id="filterInput" placeholder="e.g., China, India..." list="countryList">
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortSelect">Sort By:</label>
+                        <select id="sortSelect">
+                            <option value="none">None</option>
+                            <option value="country">Country (A-Z)</option>
+                            <option value="value">Value (High-Low)</option>
+                            <option value="year">Year (Recent First)</option>
+                        </select>
+                    </div>
+                    <div class="filter-buttons">
+                        <button id="applyBtn" class="btn-primary">APPLY FILTER & SORT</button>
+                        <button id="resetBtn" class="btn-secondary">RESET</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Row Count -->
+        <section class="row-count-section">
+            <div class="container">
+                <p>Showing <strong id="rowCount">0</strong> records</p>
+            </div>
+        </section>
+
+        <!-- Data Table Section -->
+        <section class="table-section">
+            <div class="container">
+                <h2>COMPLETE DATABASE</h2>
+                <div class="table-wrapper">
+                    <table id="dataTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Country Code</th>
+                                <th>Country Name</th>
+                                <th>Indicator Name</th>
+                                <th>Year</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button onclick="previousPage()" class="btn-secondary">← Previous</button>
+                    <span id="pageInfo">Page 1</span>
+                    <button onclick="nextPage()" class="btn-secondary">Next →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Upload Section -->
+        <section class="upload-section">
+            <div class="container">
+                <h2>LOAD CUSTOM DATASET</h2>
+                <div class="upload-box">
+                    <input type="file" id="csvUpload" accept=".csv" onchange="handleFileUpload(event)">
+                    <label for="csvUpload" class="upload-label">
+                        <span>📁 CLICK TO UPLOAD CSV</span>
+                        <p>or drag and drop World Bank debt CSV data</p>
+                    </label>
+                </div>
+                <div id="uploadStatus" class="upload-status"></div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <div class="container">
+                <h2>DATA FEATURES</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-number">1</div>
+                        <h3>Search & Filter</h3>
+                        <p>Use the search filters to find specific countries, indicators, and years. Narrow down the results to your analysis needs.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">2</div>
+                        <h3>Pagination</h3>
+                        <p>Browse through thousands of records with easy pagination controls. View 10 records per page with navigation buttons.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">3</div>
+                        <h3>Upload Files</h3>
+                        <p>Load your own CSV files to extend the dataset. Merge different data sources for comprehensive analysis.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">4</div>
+                        <h3>Data Export</h3>
+                        <p>Export filtered results for use in reports, presentations, and academic papers. Full data transparency.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>💻 WORLD BANK DEBT DASHBOARD | 🔗 <a href="https://www.kaggle.com/datasets/theworldbank/world-bank-international-debt-statistics/" target="_blank">Kaggle Data</a> | 🌐 <a href="https://www.worldbank.org/" target="_blank">World Bank</a></p>
+        </div>
+    </footer>
+
+    <script src="../scripts/script.js"></script>
+    <script>
+        // Load data and initialize table
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorldBankData();
+        });
+    </script>
+</body>
+</html>
