@@ -1136,6 +1136,16 @@ function median(arr) {
     : s[m];
 }
 
+/**
+ * Helper function to update row count display
+ */
+function updateRowCount(count) {
+  const rowCountElement = document.getElementById('rowCount');
+  if (rowCountElement) {
+    rowCountElement.textContent = `${count} rows`;
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════
    ███████╗ ████████╗ ██╗   ██╗ ██████╗  ███████╗ ███╗  ██╗ ████████╗ ██╗
@@ -1740,6 +1750,9 @@ function pearsonCorr(x, y) {
     denomY += dy * dy;
   }
   
+  // Check for no variance in x or y (would cause division by zero)
+  if (denomX === 0 || denomY === 0) return 0;
+  
   const r = num / Math.sqrt(denomX * denomY);
   return Math.round(r * 10000) / 10000;
 }
@@ -1775,6 +1788,15 @@ function linearRegression(x, y) {
     const dy = y[i] - my;
     num += dx * dy;
     denom += dx * dx;
+  }
+  
+  // Check for no variance in x (would cause division by zero)
+  if (denom === 0) {
+    return {
+      slope: 0,
+      intercept: my,
+      rSquared: 0
+    };
   }
   
   const slope = num / denom;
@@ -1827,9 +1849,15 @@ function linearRegression(x, y) {
  *                  (predicted score for a student who studies 15 hrs/week)
  */
 function renderAnalysis(data) {
+  console.log("renderAnalysis called with", data.length, "records");
+  
   const scores = data.map(d => d.score);
   const hours = data.map(d => d.studyHours);
   const attend = data.map(d => d.attendance);
+  
+  console.log("Scores:", scores.slice(0, 5), "...");
+  console.log("Hours:", hours.slice(0, 5), "...");
+  console.log("Attendance:", attend.slice(0, 5), "...");
   
   // Descriptive Stats
   document.getElementById('an').textContent = data.length;
@@ -1839,9 +1867,13 @@ function renderAnalysis(data) {
   document.getElementById('aVariance').textContent = variance(scores);
   document.getElementById('aStdDev').textContent = stdDev(scores);
   
+  console.log("Descriptive stats updated");
+  
   // Correlation
   const rHours = pearsonCorr(hours, scores);
   const rAttend = pearsonCorr(attend, scores);
+  
+  console.log("rHours:", rHours, "rAttend:", rAttend);
   
   document.getElementById('rPearson').textContent = rHours.toFixed(4);
   document.getElementById('rInterp').textContent = getCorrelationInterpretation(rHours);
@@ -1850,14 +1882,29 @@ function renderAnalysis(data) {
   document.getElementById('rStronger').textContent = Math.abs(rHours) > Math.abs(rAttend) ? "Study Hours" : "Attendance";
   document.getElementById('rDirection').textContent = (rHours > 0 && rAttend > 0) ? "Both positive" : (rHours < 0 && rAttend < 0) ? "Both negative" : "Mixed";
   
+  console.log("Correlation stats updated");
+  
   // Regression
   const reg = linearRegression(hours, scores);
-  document.getElementById('regEquation').textContent = `score = ${reg.slope}·hours + ${reg.intercept}`;
-  document.getElementById('regSlope').textContent = reg.slope;
-  document.getElementById('regIntercept').textContent = reg.intercept;
-  document.getElementById('regR2').textContent = reg.rSquared;
-  document.getElementById('regInterp').textContent = reg.rSquared >= 0.9 ? "Excellent fit" : reg.rSquared >= 0.7 ? "Good fit" : "Weak fit";
-  document.getElementById('regPredict').textContent = (reg.slope * 15 + reg.intercept).toFixed(1);
+  console.log("Regression result:", reg);
+  
+  if (reg) {
+    document.getElementById('regEquation').textContent = `score = ${reg.slope}·hours + ${reg.intercept}`;
+    document.getElementById('regSlope').textContent = reg.slope;
+    document.getElementById('regIntercept').textContent = reg.intercept;
+    document.getElementById('regR2').textContent = reg.rSquared;
+    document.getElementById('regInterp').textContent = reg.rSquared >= 0.9 ? "Excellent fit" : reg.rSquared >= 0.7 ? "Good fit" : "Weak fit";
+    document.getElementById('regPredict').textContent = (reg.slope * 15 + reg.intercept).toFixed(1);
+  } else {
+    document.getElementById('regEquation').textContent = '—';
+    document.getElementById('regSlope').textContent = '—';
+    document.getElementById('regIntercept').textContent = '—';
+    document.getElementById('regR2').textContent = '—';
+    document.getElementById('regInterp').textContent = '—';
+    document.getElementById('regPredict').textContent = '—';
+  }
+  
+  console.log("renderAnalysis completed");
 }
 
 /**

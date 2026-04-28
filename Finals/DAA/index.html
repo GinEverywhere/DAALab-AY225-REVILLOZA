@@ -62,7 +62,7 @@
         </section>
 
         <!-- Top 10 Debt Chart -->
-        <section class="chart-section">
+        <section class="chart-section">         
             <div class="container">
                 <h2>TOP 10 COUNTRIES BY DEBT</h2>
                 <div class="chart-panel">
@@ -71,6 +71,34 @@
                         Loading top 10 debt chart...
                     </div>
                     <canvas id="barChart" style="display:none; width:100%; max-height:360px;"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Additional Charts Section -->
+        <section class="chart-section">
+            <div class="container">
+                <h2>ADDITIONAL VISUALIZATIONS</h2>
+                <div class="chart-row">
+                    <!-- Scatter Plot -->
+                    <div class="chart-panel">
+                        <h3>Debt Trends Over Time</h3>
+                        <div id="scatterPlaceholder" class="chart-placeholder" style="padding: 40px; text-align: center; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 16px;">
+                            <span class="ico" style="font-size: 2rem; display: block; margin-bottom: 12px;">📈</span>
+                            Loading scatter plot...
+                        </div>
+                        <canvas id="scatterChart" style="display:none; width:100%; max-height:300px;"></canvas>
+                    </div>
+
+                    <!-- Doughnut Chart -->
+                    <div class="chart-panel">
+                        <h3>Debt Indicator Distribution</h3>
+                        <div id="doughnutPlaceholder" class="chart-placeholder" style="padding: 40px; text-align: center; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 16px;">
+                            <span class="ico" style="font-size: 2rem; display: block; margin-bottom: 12px;">🍩</span>
+                            Loading doughnut chart...
+                        </div>
+                        <canvas id="doughnutChart" style="display:none; width:100%; max-height:300px;"></canvas>
+                    </div>
                 </div>
             </div>
         </section>
@@ -104,80 +132,99 @@
             </div>
         </section>
 
-        <!-- Data Engine Section (Student 1 Contribution) -->
-        <section class="data-engine-section">
+
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
             <div class="container">
-                <h2>INTERACTIVE DATA ENGINE</h2>
-                
-                <!-- Summary Cards (TASK E) -->
+                <h2>STATISTICS</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">📊</div>
-                        <h3>Mean Value</h3>
-                        <p class="stat-value" id="cardMeanValue">—</p>
+                        <h3>Mean Debt Value</h3>
+                        <p class="stat-value" id="statMean">—</p>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">🏆</div>
-                        <h3>Highest Country</h3>
-                        <p class="stat-value" id="cardHighest">—</p>
+                        <div class="stat-icon">📈</div>
+                        <h3>Median</h3>
+                        <p class="stat-value" id="statMedian">—</p>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">🌍</div>
-                        <h3>Countries</h3>
-                        <p class="stat-value" id="cardCountries">—</p>
+                        <div class="stat-icon">📉</div>
+                        <h3>Standard Deviation</h3>
+                        <p class="stat-value" id="statStdDev">—</p>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">📅</div>
-                        <h3>Avg Year</h3>
-                        <p class="stat-value" id="cardAvgYear">—</p>
+                        <div class="stat-icon">⬆️</div>
+                        <h3>Maximum</h3>
+                        <p class="stat-value" id="statMax">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⬇️</div>
+                        <h3>Minimum</h3>
+                        <p class="stat-value" id="statMin">—</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔢</div>
+                        <h3>Total Records</h3>
+                        <p class="stat-value" id="statCount">—</p>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Filter & Sort Controls (TASK C) -->
-                <div class="filter-section">
-                    <h3>FILTER & SORT DATA</h3>
-                    <div class="filter-grid">
-                        <div class="filter-group">
-                            <label for="filterInput">Filter by Country:</label>
-                            <input type="text" id="filterInput" placeholder="e.g., China, India..." list="countryList">
-                        </div>
-                        <div class="filter-group">
-                            <label for="sortSelect">Sort By:</label>
-                            <select id="sortSelect">
-                                <option value="none">None</option>
-                                <option value="country">Country (A-Z)</option>
-                                <option value="value">Value (High-Low)</option>
-                                <option value="year">Year (Recent First)</option>
-                            </select>
-                        </div>
-                        <div class="filter-buttons">
-                            <button id="applyBtn" class="btn-primary">APPLY FILTER & SORT</button>
-                            <button id="resetBtn" class="btn-secondary">RESET</button>
-                            <button id="downloadBtn" class="btn-secondary">DOWNLOAD CSV</button>
-                        </div>
+        <!-- Regression Section -->
+        <section class="chart-section">
+            <div class="container">
+                <h2>REGRESSION ANALYSIS</h2>
+                <div class="chart-panel">
+                    <h3>Debt Trend Analysis by Country</h3>
+                    <div class="regression-controls" style="margin-bottom: 20px;">
+                        <label for="regCountry" style="margin-right: 10px;">Select Country:</label>
+                        <select id="regCountry" style="padding: 8px; margin-right: 10px;">
+                            <option value="">Select Country</option>
+                        </select>
+                        <button id="calculateRegBtn" class="btn-secondary">Calculate Regression</button>
                     </div>
+                    <div class="regression-result" style="margin-bottom: 20px;">
+                        <p><strong>Slope:</strong> <span id="regressionSlope">—</span></p>
+                        <p><strong>Intercept:</strong> <span id="regressionIntercept">—</span></p>
+                        <p><strong>R²:</strong> <span id="regressionRSquared">—</span></p>
+                    </div>
+                    <div id="regressionPlaceholder" class="chart-placeholder" style="padding: 40px; text-align: center; border: 1px dashed #ccc; border-radius: 10px; margin-bottom: 16px;">
+                        <span class="ico" style="font-size: 2rem; display: block; margin-bottom: 12px;">📈</span>
+                        Select a country and click "Calculate Regression" to view the trend
+                    </div>
+                    <canvas id="regressionChart" style="display:none; width:100%; max-height:300px;"></canvas>
                 </div>
+            </div>
+        </section>
 
-                <!-- Row Count -->
-                <div class="row-count-section">
-                    <p>Showing <strong id="rowCount">0</strong> records</p>
-                </div>
-
-                <!-- Data Table -->
-                <div class="table-wrapper">
-                    <table id="dataTable" class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Country Code</th>
-                                <th>Country Name</th>
-                                <th>Indicator Name</th>
-                                <th>Year</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
+        <!-- Insights Section -->
+        <section class="info-section">
+            <div class="container">
+                <h2>INSIGHTS</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-number">🌍</div>
+                        <h3>Global Overview</h3>
+                        <p id="insightGlobal">International debt statistics show varying patterns across countries, with developed nations carrying larger absolute debt values while developing nations show higher debt ratios relative to their economies.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">📊</div>
+                        <h3>Data Insights</h3>
+                        <p id="insightData">The dataset contains comprehensive debt information across multiple indicators including external debt, debt service metrics, and financial ratios spanning decades of economic data.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">⏱️</div>
+                        <h3>Trend Analysis</h3>
+                        <p id="insightTrend">Use the regression analysis feature to identify debt trends over time for individual countries. Positive slopes indicate increasing debt, while negative slopes suggest debt reduction.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-number">🎯</div>
+                        <h3>Key Takeaway</h3>
+                        <p id="insightTakeaway">Understanding global debt patterns is crucial for economic policy analysis. This dashboard enables exploration of international debt statistics to support research and informed decision-making.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -220,11 +267,101 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="script.js"></script>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════════════╗
+    ║       WORLD BANK DEBT DASHBOARD — 2-STUDENT COLLABORATIVE PROJECT       ║
+    ║                                                                          ║
+    ║  PURPOSE: Analyze and visualize global debt statistics by country        ║
+    ║           and debt indicators from 1970-2023                             ║
+    ║                                                                          ║
+    ║  ┌─────────────────────────────────────────────────────────────────────┐ ║
+    ║  │  STUDENT 1 (Data Engine)                                           │ ║
+    ║  │  • Load & parse World Bank debt CSV data                           │ ║
+    ║  │  • Populate data structures (allData, filteredData, window.DS)     │ ║
+    ║  │  • Render data tables with filtering & sorting capabilities       │ ║
+    ║  │  • Calculate & display descriptive statistics                     │ ║
+    ║  │  • Handle pagination and user interactions                        │ ║
+    ║  │                                                                   │ ║
+    ║  │  KEY FUNCTIONS:                                                  │ ║
+    ║  │  • loadWorldBankData() - Fetch & parse CSV                        │ ║
+    ║  │  • parseWorldBankData(csv) - Extract records for all years        │ ║
+    ║  │  • loadDataset() - Initialize window.DS, call render functions   │ ║
+    ║  │  • renderTable(data) - Display debt records in table              │ ║
+    ║  │  • applyFilterSort() - Filter by country/indicator, sort results  │ ║
+    ║  │  • renderSummaryCards(data) - Show mean, median, stddev stats     │ ║
+    ║  │  • calculateDescriptiveStats(data) - Compute all statistics       │ ║
+    ║  │                                                                   │ ║
+    ║  │  DOM ELEMENTS TO POPULATE:                                        │ ║
+    ║  │  • #countryCount, #recordCount, #categoryCount, #yearRange       │ ║
+    ║  │  • #statMean, #statMedian, #statStdDev, #statMax, #statMin       │ ║
+    ║  │  • #statCount, #tableBody, #rowCount                             │ ║
+    ║  └─────────────────────────────────────────────────────────────────────┘ ║
+    ║                                                                          ║
+    ║  ┌─────────────────────────────────────────────────────────────────────┐ ║
+    ║  │  STUDENT 2 (Visualization & Analysis Engine)                       │ ║
+    ║  │  • Create interactive charts (bar, scatter, doughnut)             │ ║
+    ║  │  • Implement linear regression analysis                           │ ║
+    ║  │  • Calculate correlation between indicators                       │ ║
+    ║  │  • Generate statistical analysis reports                          │ ║
+    ║  │                                                                   │ ║
+    ║  │  CHART FUNCTIONS:                                                │ ║
+    ║  │  • drawBarChart(canvasId, data)                                   │ ║
+    ║  │    - Sort data by Value descending, display top 10 countries      │ ║
+    ║  │    - Horizontal bar chart (indexAxis: 'y')                        │ ║
+    ║  │    - Color: coral #d94f3d at 80% opacity                          │ ║
+    ║  │                                                                   │ ║
+    ║  │  • drawScatterPlot(canvasId, data)                                │ ║
+    ║  │    - X-axis: Year, Y-axis: Debt Value                             │ ║
+    ║  │    - Show regression trend line overlay                           │ ║
+    ║  │    - Tooltip with country & value info                           │ ║
+    ║  │                                                                   │ ║
+    ║  │  • drawDoughnut(canvasId, data)                                   │ ║
+    ║  │    - Count debt indicators/categories                             │ ║
+    ║  │    - Cutout 60% (doughnut style)                                  │ ║
+    ║  │    - Show count + percentage in tooltip                          │ ║
+    ║  │                                                                   │ ║
+    ║  │  ANALYSIS FUNCTIONS:                                             │ ║
+    ║  │  • calculateLinearRegression(data, countryCode)                   │ ║
+    ║  │    - Returns: { slope, intercept, rSquared, points }              │ ║
+    ║  │  • calculateCorrelation(data, indicator1, indicator2)             │ ║
+    ║  │    - Returns: { coefficient, interpretation }                     │ ║
+    ║  │  • variance(arr), stdDev(arr), pearsonCorr(x, y)                  │ ║
+    ║  │    - Statistical helper functions                                │ ║
+    ║  │                                                                   │ ║
+    ║  │  DOM ELEMENTS TO POPULATE:                                        │ ║
+    ║  │  • #barChart, #scatterChart, #doughnutChart                       │ ║
+    ║  │  • #regressionChart, #regressionSlope, #regressionIntercept       │ ║
+    ║  │  • #regressionRSquared, #correlationResult, #correlationInterpretation│
+    ║  └─────────────────────────────────────────────────────────────────────┘ ║
+    ║                                                                          ║
+    ║  ── GIT WORKFLOW ────────────────────────────────────────────────────── ║
+    ║  1. Student 1 creates repo, pushes initial files, adds README          ║
+    ║  2. Student 1 creates feature branch: git checkout -b feature/data-engine
+    ║  3. Student 2 creates feature branch: git checkout -b feature/viz-analysis
+    ║  4. Each commits to their branch (min. 5 commits per student)           ║
+    ║  5. Open Pull Requests targeting main when complete                    ║
+    ║  6. Partner reviews, leaves comments, approves                         ║
+    ║  7. Merge after approval (resolve conflicts together if needed)        ║
+    ║                                                                          ║
+    ║  ── GRADING RUBRIC ─────────────────────────────────────────────────── ║
+    ║  ✓ ≥ 5 meaningful commits on feature branch                           ║
+    ║  ✓ Merged Pull Request with clear description                         ║
+    ║  ✓ At least 1 code review comment on partner's PR                     ║
+    ║  ✓ All assigned functions implemented & working                       ║
+    ║  ✓ No console errors in final merged version                          ║
+    ║  ✓ README.md with project setup & usage instructions                  ║
+    ║  ✓ Data loads correctly from IDSData.csv & IDSCountry.csv             ║
+    ║  ✓ Charts render without errors                                        ║
+    ║  ✓ Statistical analysis functions compute correctly                    ║
+    ╚══════════════════════════════════════════════════════════════════════════╝
+    -->
+
     <script>
         // Load statistics on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadWorldBankData();
-        });
+        });     
     </script>
 </body>
 </html>

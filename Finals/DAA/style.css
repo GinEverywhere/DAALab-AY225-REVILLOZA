@@ -772,3 +772,181 @@ body::before {
         width: 100%;
     }
 }
+
+/* Statistical Analysis Styles */
+.stat-analysis-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.9) 0%, rgba(42, 27, 78, 0.9) 100%);
+    border-top: 2px solid var(--neon-green);
+    border-bottom: 2px solid var(--neon-green);
+}
+
+.stat-analysis-section h3 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 20px var(--neon-green);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.analysis-panel {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95) 0%, rgba(42, 27, 78, 0.95) 100%);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    border-radius: 0;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);
+    border: 2px solid var(--neon-cyan);
+}
+
+.analysis-panel h4 {
+    color: var(--neon-cyan);
+    margin-bottom: 2rem;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.correlation-controls,
+.regression-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 2rem;
+}
+
+.correlation-controls label,
+.regression-controls label {
+    font-weight: 600;
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.correlation-controls select,
+.regression-controls select {
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--neon-cyan);
+    background: rgba(10, 14, 39, 0.8);
+    color: var(--neon-cyan);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    border-radius: 0;
+}
+
+.correlation-controls select:focus,
+.regression-controls select:focus {
+    border-color: var(--neon-magenta);
+    box-shadow: 0 0 20px rgba(255, 16, 240, 0.3);
+}
+
+.correlation-result,
+.regression-result {
+    background: rgba(0, 240, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 0;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    margin-bottom: 2rem;
+}
+
+.correlation-result p,
+.regression-result p {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.correlation-result strong,
+.regression-result strong {
+    color: var(--neon-cyan);
+}
+
+.correlation-result span,
+.regression-result span {
+    color: var(--neon-green);
+    font-weight: 600;
+}
+
+#calculateCorrBtn,
+#calculateRegBtn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 2px solid var(--neon-green);
+    background: transparent;
+    color: var(--neon-green);
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+#calculateCorrBtn:hover,
+#calculateRegBtn:hover {
+    background: rgba(57, 255, 20, 0.1);
+    box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.4), 0 0 40px rgba(57, 255, 20, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Chart Section */
+.chart-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.9) 0%, rgba(42, 27, 78, 0.9) 100%);
+    border-top: 2px solid var(--neon-cyan);
+}
+
+.chart-section h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+    color: var(--neon-cyan);
+    text-shadow: var(--glow-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.chart-panel {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95) 0%, rgba(42, 27, 78, 0.95) 100%);
+    padding: 2rem;
+    border-radius: 0;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);
+    border: 2px solid var(--neon-cyan);
+    margin-bottom: 2rem;
+}
+
+.chart-panel h3 {
+    color: var(--neon-cyan);
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.chart-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.chart-placeholder {
+    background: rgba(10, 14, 39, 0.8);
+    border: 2px dashed var(--neon-cyan);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 2rem;
+}
+
+.chart-placeholder .ico {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+}
