@@ -65,9 +65,9 @@ Finals/DAA/
 
 | Attribute | Value |
 |-----------|-------|
-| Coverage | 200+ countries |
-| Records | 100,000+ entries |
-| Time Period | 1970–2023 |
+| Coverage | 100+ countries |
+| Records | 1,000,000+ entries |
+| Time Period | 1970–2025 |
 | Metrics | External debt, PPG debt, short-term debt, etc. |
 | Format | CSV (processed from Kaggle WB Debt dataset) |
 
